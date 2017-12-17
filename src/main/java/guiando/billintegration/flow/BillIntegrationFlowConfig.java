@@ -1,5 +1,7 @@
 package guiando.billintegration.flow;
 
+import guiando.billintegration.model.BillType;
+import guiando.billintegration.model.FileType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPClient;
@@ -69,11 +71,11 @@ public class BillIntegrationFlowConfig
     IntegrationFlow waterBillProcessFlow(){
         return flow -> flow
                 .split()
-                .filter(f -> f.toString().contains("agua"))
+                .filter(f -> f.toString().contains(BillType.AGUA.getBillType()))
                 .enrichHeaders(h -> h.headerExpression("file_path","payload",true))
                 .transform(this.toFileType())
-                .<String, String>route(p -> p.toString(), m -> m
-                .subFlowMapping("application/pdf", sf -> sf.channel("pdfWaterBillPrecessFlow.input"))
+                .<String, String>route(p -> p, m -> m
+                    .subFlowMapping(FileType.PDF.getFileType(), sf -> sf.channel("pdfWaterBillPrecessFlow.input"))
                 );
     }
 
@@ -81,6 +83,7 @@ public class BillIntegrationFlowConfig
     @Bean
     IntegrationFlow pdfWaterBillPrecessFlow(){
         return f -> f
+                .wireTap(w -> w.handle(h -> log.info("Utilizando o mapeamento para contas de água em PDF")))
                 .wireTap(w -> w.handle(h -> log.info("Conta de água em PDF processada com sucesso")));
     }
 
@@ -92,7 +95,7 @@ public class BillIntegrationFlowConfig
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return DEFAULTFILETYPE;
+            return FileType.DEFAULT.getFileType();
         };
     }
 }

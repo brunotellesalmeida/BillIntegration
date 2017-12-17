@@ -1,16 +1,16 @@
 package guiando.billintegration.model;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum FileType {
 
-    PDF("application/pdf");
+    PDF("application/pdf"),
+    XML("xml"),
+    XLSX("XLSX"),
+    DEFAULT("application/pdf");
 
     private final String fileType;
-
-    FileType(String fileType){
-        this.fileType = fileType;
-    }
-
-    public String getFileType() {
-        return fileType;
-    }
 }

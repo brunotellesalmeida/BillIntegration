@@ -1,5 +1,14 @@
 package guiando.billintegration.model;
 
-public enum BillType {
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@Getter
+@RequiredArgsConstructor
+public enum BillType {
+    AGUA("agua"),
+    ENERGIA("enengia"),
+    TAXI("taxi"),;
+
+    private final String billType;
 }
