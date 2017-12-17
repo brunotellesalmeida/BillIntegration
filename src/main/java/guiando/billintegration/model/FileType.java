@@ -9,6 +9,7 @@ public enum FileType {
 
     PDF("application/pdf"),
     XML("xml"),
+    TXT("text/plain"),
     XLSX("XLSX"),
     DEFAULT("application/pdf");
 

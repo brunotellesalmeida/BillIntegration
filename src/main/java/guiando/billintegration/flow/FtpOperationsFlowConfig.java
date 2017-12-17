@@ -37,7 +37,7 @@ public class FtpOperationsFlowConfig {
 
 
     @Bean
-    GenericHandler<Object> getFilePath() {
+    GenericHandler<Object> getLastFilePath() {
         return (p, h) -> {
             List<FileInfo> fileInfo = (List<FileInfo>) p;
             List<String> prefixes = ftpProperties.getTypeFilePrefixes();
@@ -51,6 +51,24 @@ public class FtpOperationsFlowConfig {
                             .ifPresent(path -> filePaths.add(path));
                 }
             );
+            return filePaths;
+        };
+    }
+
+    @Bean
+    GenericHandler<Object> getAllFilePath() {
+        return (p, h) -> {
+            List<FileInfo> fileInfo = (List<FileInfo>) p;
+            List<String> prefixes = ftpProperties.getTypeFilePrefixes();
+            List<String> filePaths = new LinkedList<>();
+
+            prefixes.forEach( pr -> {
+                fileInfo.stream()
+                        .filter(f1 -> f1.getFilename().contains(pr))
+                        .forEach(fi -> {
+                            filePaths.add(String.format("%s%s", fi.getRemoteDirectory(), fi.getFilename()));
+                        });
+            });
             return filePaths;
         };
     }

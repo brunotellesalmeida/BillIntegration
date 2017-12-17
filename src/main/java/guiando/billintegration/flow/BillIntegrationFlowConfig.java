@@ -1,26 +1,18 @@
 package guiando.billintegration.flow;
 
-import guiando.billintegration.model.BillType;
-import guiando.billintegration.model.FileType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.NullChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.integration.ftp.dsl.Ftp;
 import org.springframework.integration.ftp.session.AbstractFtpSessionFactory;
-import org.springframework.integration.handler.MessageProcessor;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -31,8 +23,9 @@ import static org.springframework.integration.file.remote.gateway.AbstractRemote
 @RequiredArgsConstructor
 public class BillIntegrationFlowConfig
 {
-    public static final String DEFAULTFILETYPE = "application/pdf";
     private final FtpOperationsFlowConfig ftpOperationsFlowConfig;
+    private final EnergyBillIntegrationFlowConfig energyBillIntegrationFlowConfig;
+    private final WatterBillIntegrationFlowConfig watterBillIntegrationFlowConfig;
 
     @Bean
     AbstractFtpSessionFactory<FTPClient> sessionFactory() {
@@ -53,7 +46,7 @@ public class BillIntegrationFlowConfig
                 .handle(Ftp.outboundGateway(this.sessionFactory(), LS, "payload")
                 .get()
                 )
-                .transform(ftpOperationsFlowConfig.getFilePath())
+                .transform(ftpOperationsFlowConfig.getAllFilePath())
                 .<List<String>>filter(p -> !p.isEmpty(),
                         c -> c.discardFlow(dcf -> dcf
                                 .wireTap(w -> w.handle(h -> log.info("Nenhum arquivo encontrado no FTP do cliente.")))
@@ -61,41 +54,11 @@ public class BillIntegrationFlowConfig
                         )
                 )
                 .publishSubscribeChannel(ps -> ps
-                    .subscribe(this.waterBillProcessFlow())
+                    .subscribe(this.watterBillIntegrationFlowConfig.waterBillProcessFlow())
+                    .subscribe(this.energyBillIntegrationFlowConfig.energyBillProcessFlow())
                     .subscribe(s -> s
                     .wireTap(w -> w.handle(h -> log.info("Integração finalizada"))))
                 )
                 .get();
-    }
-
-    IntegrationFlow waterBillProcessFlow(){
-        return flow -> flow
-                .split()
-                .filter(f -> f.toString().contains(BillType.AGUA.getBillType()))
-                .enrichHeaders(h -> h.headerExpression("file_path","payload",true))
-                .transform(this.toFileType())
-                .<String, String>route(p -> p, m -> m
-                    .subFlowMapping(FileType.PDF.getFileType(), sf -> sf.channel("pdfWaterBillPrecessFlow.input"))
-                );
-    }
-
-
-    @Bean
-    IntegrationFlow pdfWaterBillPrecessFlow(){
-        return f -> f
-                .wireTap(w -> w.handle(h -> log.info("Utilizando o mapeamento para contas de água em PDF")))
-                .wireTap(w -> w.handle(h -> log.info("Conta de água em PDF processada com sucesso")));
-    }
-
-    @Transformer
-    private MessageProcessor<String> toFileType(){
-        return (Message<?> message) -> {
-            try {
-                return Files.probeContentType((Paths.get(message.getPayload().toString())));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return FileType.DEFAULT.getFileType();
-        };
     }
 }
