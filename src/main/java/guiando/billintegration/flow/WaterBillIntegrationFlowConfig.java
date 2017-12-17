@@ -12,7 +12,7 @@ import org.springframework.integration.dsl.IntegrationFlow;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class WatterBillIntegrationFlowConfig {
+public class WaterBillIntegrationFlowConfig {
     private final FileTypeTransformer fileTypeTransformer;
 
     IntegrationFlow waterBillProcessFlow(){
@@ -33,13 +33,13 @@ public class WatterBillIntegrationFlowConfig {
     IntegrationFlow pdfWaterBillPrecessFlow(){
         return f -> f
                 .wireTap(w -> w.handle(h -> log.info("Utilizando o mapeamento para contas de água em PDF")))
-                .wireTap(w -> w.handle(h -> log.info("Conta de água em PDF processada com sucesso")));
+                .wireTap(w -> w.handle(h -> log.info("Conta de água "  + h.getHeaders().get("file_path") + " em PDF processada com sucesso \n\n")));
     }
 
     @Bean
     IntegrationFlow txtWaterBillPrecessFlow(){
         return f -> f
                 .wireTap(w -> w.handle(h -> log.info("Utilizando o mapeamento para contas de água em TXT")))
-                .wireTap(w -> w.handle(h -> log.info("Conta de água em TXT processada com sucesso")));
+                .wireTap(w -> w.handle(h -> log.info("Conta de água " + h.getHeaders().get("file_path") + " em TXT processada com sucesso \n\n")));
     }
 }

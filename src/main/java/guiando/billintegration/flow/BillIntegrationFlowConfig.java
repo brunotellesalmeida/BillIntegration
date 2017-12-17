@@ -25,7 +25,7 @@ public class BillIntegrationFlowConfig
 {
     private final FtpOperationsFlowConfig ftpOperationsFlowConfig;
     private final EnergyBillIntegrationFlowConfig energyBillIntegrationFlowConfig;
-    private final WatterBillIntegrationFlowConfig watterBillIntegrationFlowConfig;
+    private final WaterBillIntegrationFlowConfig watterBillIntegrationFlowConfig;
 
     @Bean
     AbstractFtpSessionFactory<FTPClient> sessionFactory() {

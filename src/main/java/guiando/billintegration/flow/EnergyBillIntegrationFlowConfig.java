@@ -33,13 +33,13 @@ public class EnergyBillIntegrationFlowConfig {
     IntegrationFlow pdfEnergyBillPrecessFlow(){
         return f -> f
                 .wireTap(w -> w.handle(h -> log.info("Utilizando o mapeamento para contas de energia em PDF")))
-                .wireTap(w -> w.handle(h -> log.info("Conta de energia em PDF processada com sucesso")));
+                .wireTap(w -> w.handle(h -> log.info("Conta de energia " + h.getHeaders().get("file_path") + " em PDF processada com sucesso \n\n")));
     }
 
     @Bean
     IntegrationFlow txtEnergyBillPrecessFlow(){
         return f -> f
                 .wireTap(w -> w.handle(h -> log.info("Utilizando o mapeamento para contas de energia em TXT")))
-                .wireTap(w -> w.handle(h -> log.info("Conta de energia em TXT processada com sucesso")));
+                .wireTap(w -> w.handle(h -> log.info("Conta de energia " + h.getHeaders().get("file_path") + " em TXT processada com sucesso \n\n")));
     }
 }
