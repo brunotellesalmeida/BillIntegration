@@ -30,7 +30,6 @@ import static org.springframework.integration.file.remote.gateway.AbstractRemote
 public class BillIntegrationFlowConfig
 {
     public static final String DEFAULTFILETYPE = "application/pdf";
-    public static final String PDF = "application/pdf";
     private final FtpOperationsFlowConfig ftpOperationsFlowConfig;
 
     @Bean
@@ -61,7 +60,6 @@ public class BillIntegrationFlowConfig
                 )
                 .publishSubscribeChannel(ps -> ps
                     .subscribe(this.waterBillProcessFlow())
-                    .subscribe(this.energyBillProcessFlow())
                     .subscribe(s -> s
                     .wireTap(w -> w.handle(h -> log.info("Integração finalizada"))))
                 )
@@ -75,18 +73,7 @@ public class BillIntegrationFlowConfig
                 .enrichHeaders(h -> h.headerExpression("file_path","payload",true))
                 .transform(this.toFileType())
                 .<String, String>route(p -> p.toString(), m -> m
-                .subFlowMapping(PDF, sf -> sf.channel("pdfWatterBillPrecessFlow.input"))
-                );
-    }
-
-    IntegrationFlow energyBillProcessFlow(){
-        return flow -> flow
-                .split()
-                .filter(f -> f.toString().contains("energia"))
-                .enrichHeaders(h -> h.headerExpression("file_path","payload",true))
-                .transform(this.toFileType())
-                .<String, String>route(p -> p.toString(), m -> m
-                        .subFlowMapping(PDF, sf -> sf.channel("pdfWaterBillPrecessFlow.input"))
+                .subFlowMapping("application/pdf", sf -> sf.channel("pdfWaterBillPrecessFlow.input"))
                 );
     }
 
@@ -94,14 +81,7 @@ public class BillIntegrationFlowConfig
     @Bean
     IntegrationFlow pdfWaterBillPrecessFlow(){
         return f -> f
-                .wireTap(w -> w.handle(h -> log.info("Conta de água em PDF processada com sucesso")));
-    }
-
-
-    @Bean
-    IntegrationFlow pdfEnergyBillPrecessFlow(){
-        return f -> f
-                .wireTap(w -> w.handle(h -> log.info("Conta de energia em PDF processada com sucesso")));
+                .wireTap(w -> w.handle(h -> log.info("Conta de água processada com sucesso")));
     }
 
     @Transformer
