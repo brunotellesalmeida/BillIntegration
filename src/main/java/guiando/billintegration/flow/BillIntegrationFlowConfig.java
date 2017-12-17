@@ -81,7 +81,7 @@ public class BillIntegrationFlowConfig
     @Bean
     IntegrationFlow pdfWaterBillPrecessFlow(){
         return f -> f
-                .wireTap(w -> w.handle(h -> log.info("Conta de água processada com sucesso")));
+                .wireTap(w -> w.handle(h -> log.info("Conta de água em PDF processada com sucesso")));
     }
 
     @Transformer
