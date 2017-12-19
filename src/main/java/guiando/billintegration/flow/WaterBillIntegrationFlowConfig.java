@@ -20,9 +20,10 @@ public class WaterBillIntegrationFlowConfig {
                 .split()
                 .filter(f -> f.toString().contains(BillType.AGUA.getBillType()))
                 .enrichHeaders(h -> h.headerExpression("file_path","payload",true))
-                .transform(fileTypeTransformer.toFileType())
+                .transform(fileTypeTransformer.toFileTypeApacheTika())
                 .<String, String>route(p -> p, m -> m
                         .resolutionRequired(false)
+                        .requiresReply(false)
                         .subFlowMapping(FileType.PDF.getFileType(), sf -> sf.channel("pdfWaterBillPrecessFlow.input"))
                         .subFlowMapping(FileType.TXT.getFileType(), sf -> sf.channel("txtWaterBillPrecessFlow.input"))
                         .defaultSubFlowMapping(dsf -> dsf.channel("pdfWaterBillPrecessFlow.input"))

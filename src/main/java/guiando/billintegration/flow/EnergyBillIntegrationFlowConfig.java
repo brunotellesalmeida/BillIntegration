@@ -20,12 +20,12 @@ public class EnergyBillIntegrationFlowConfig {
                 .split()
                 .filter(f -> f.toString().contains(BillType.ENERGIA.getBillType()))
                 .enrichHeaders(h -> h.headerExpression("file_path","payload",true))
-                .transform(fileTypeTransformer.toFileType())
+                .transform(fileTypeTransformer.toFileTypeApacheTika())
                 .<String, String>route(p -> p, m -> m
                         .resolutionRequired(false)
                         .subFlowMapping(FileType.PDF.getFileType(), sf -> sf.channel("pdfEnergyBillPrecessFlow.input"))
                         .subFlowMapping(FileType.TXT.getFileType(), sf -> sf.channel("txtEnergyBillPrecessFlow.input"))
-                        .defaultSubFlowMapping(dsf -> dsf.channel("pdfWaterBillPrecessFlow.input"))
+                        .defaultSubFlowMapping(dsf -> dsf.channel("pdfEnergyBillPrecessFlow.input"))
                 );
     }
 

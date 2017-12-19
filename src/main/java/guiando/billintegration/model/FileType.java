@@ -10,7 +10,7 @@ public enum FileType {
     PDF("application/pdf"),
     XML("xml"),
     TXT("text/plain"),
-    XLSX("XLSX"),
+    XLSX("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
     DEFAULT("application/pdf");
 
     private final String fileType;

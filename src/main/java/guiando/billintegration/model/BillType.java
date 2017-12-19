@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum BillType {
+
     AGUA("agua"),
     ENERGIA("energia"),
     TAXI("taxi"),;
